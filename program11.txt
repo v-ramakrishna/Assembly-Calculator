@@ -1,0 +1,675 @@
+##Vijay Ramakrishna
+##CSC230
+##04-25-17
+##Program 11: Overflow
+##Description: Program to Add, Subtract, Multiply, Divide, or Exponential/Power Function Two User-Specified Integers Within Set Bounds
+
+################################################# 
+#               data segment                    # 
+#################################################
+
+	.data
+
+ASKQUERY1:	.asciiz "Please Enter the First Decimal Number: "
+ASKQUERY2:	.asciiz "Please Enter the Second Decimal Number: "
+ASKQUERY3:	.asciiz "Select the Operation (1=Addition, 2=Subtraction, 3=Multiplication, 4=Division, 5=Exponent): "
+ASKQUERY4:	.asciiz "Please Re-Enter the First Decimal Number: "
+ASKQUERY5:	.asciiz "Please Re-Enter the Second Decimal Number: "
+ASKQUERY6:	.asciiz "Re-select the Operation (1=Addition, 2=Subtraction, 3=Multiplication, 4=Division, 5=Exponent): "
+ERROR:		.asciiz "Not a Valid Operation"
+OVERFLOWERROR:	.asciiz "The Result is Invalid Due to Overflow "
+ANSERROR:	.asciiz "The Answer is Out of Range "
+REPEATMESS:	.asciiz "Would You Like To Do Another Operation? (1=Yes, 2=No): "
+OUTPUT:		.asciiz "The Result Is: "
+REMAINDER:	.asciiz "The Remainder Is: "
+BLANKS:		.asciiz "\n \n"
+SKIP:		.asciiz "\n"
+
+################################################# 
+#               text segment                    # 
+#################################################
+	.text 				
+	.globl main	
+
+main:	
+
+LOOP:
+
+	li $t0, 0	       #Set Register $t0 to 0
+	li $t1, 1	       #Set Register $t1 to 1
+	li $t2, 2	       #Set Register $t1 to 2
+	li $t3, 3	       #Set Register $t3 to 3
+	li $t4, 4	       #Set Register $t4 to 4
+	li $t5, 5	       #Set Register $t5 to 5
+ 	li $t6, 6              #Set Register $t6 to 6
+
+	# Ask for First Input #
+
+	la $a0, ASKQUERY1      #Place first query into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print first query
+
+	# Get and Save First Input #
+	
+	li $v0, 5	       #Set syscall to take integer input
+	syscall                #Get first integer
+	movz $s1, $v0, $t0     #Move first integer to register $s1
+
+	# Ask for Second Input #
+
+	la $a0, ASKQUERY2      #Place second query into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print second query
+	
+	# Get and Save Second Input #
+	
+	li $v0, 5	       #Set syscall to take integer input
+	syscall                #Get second integer
+	movz $s2, $v0, $t0     #Move second integer to register $s2
+
+	# Ask for Operation #
+
+	la $a0, ASKQUERY3      #Place third query into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print third query
+	
+	# Get and Save Operation #
+	
+	li $v0, 5	       #Set syscall to take integer input
+	syscall                #Get operation
+	movz $s0, $v0, $t0     #Move operation to register $s0
+
+	# Validate Operator #
+	
+	slt $t7, $s0, $t6      #Set register $t7 to 0 if Operator is greater than or equal to 5
+  	beq $zero, $t7, OPERR    #If register $t7 is 0 (Due to the Operator being greater than 5) go to OPERR  
+	slt $t7, $t0, $s0      #Set register $t7 to 0 if Operator is less than or equal to 0
+ 	beq $zero, $t7, OPERR    #If register $t7 is 0 (Due to the Operator being less than 1) go to OPERR  
+
+	# Branch #
+	beq $t1, $s0, ADD      #If Operator is 1 go to ADD
+	beq $t2, $s0, SUB      #If Operator is 2 go to SUB
+	beq $t3, $s0, MUL      #If Operator is 3 go to MUL
+	beq $t4, $s0, DIV      #If Operator is 4 go to DIV
+  	beq $t5, $s0, EXPPREP  #If Operator is 5 go to EXPPREP
+
+
+OPERR:
+	
+	li $t0, 0	       #Set Register $t0 to 0
+	li $t1, 1	       #Set Register $t1 to 1
+	li $t2, 2	       #Set Register $t1 to 2
+	li $t3, 3	       #Set Register $t3 to 3
+	li $t4, 4	       #Set Register $t4 to 4
+	li $t5, 5	       #Set Register $t5 to 5	
+  	li $t6, 6
+
+	# Print Output Message #
+
+	la $a0, ERROR          #Place error message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print error message
+
+
+	# Skip Line #
+	
+	la $a0, SKIP	       #Place line skip into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print line skip
+
+	# Ask for Operation #
+
+	la $a0, ASKQUERY6      #Place sixth query into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print third query
+	
+	# Get and Save Operation #
+	
+	li $v0, 5	       #Set syscall to take integer input
+	syscall                #Get operation
+	movz $s0, $v0, $t0     #Move operation to register $s0
+
+	# Validate Operator #
+
+	slt $t7, $s0, $t6        #Set register $t6 to 0 if Operator is greater than or equal to 6
+  	beq $zero, $t7, OPERR    #If register $t6 is 0 (Due to the Operator being greater than 5) go to OPERR
+	slt $t7, $t0, $s0        #Set register $t7 to 0 if Operator is less than or equal to 0
+ 	beq $zero, $t7, OPERR    #If register $t7 is 0 (Due to the Operator being less than 1) go to OPERR
+
+
+	# Branch #
+	beq $t1, $s0, ADD      #If Operator is 1 go to ADD
+	beq $t2, $s0, SUB      #If Operator is 2 go to SUB
+	beq $t3, $s0, MUL      #If Operator is 3 go to MUL
+	beq $t4, $s0, DIV      #If Operator is 4 go to DIV
+  	beq $t5, $s0, EXPPREP  #If Operator is 5 go to EXPPREP
+
+REPEAT:
+	
+	li $t0, 0	       #Set Register $t0 to 0
+	li $t1, 1	       #Set Register $t1 to 1
+	li $t2, 2	       #Set Register $t1 to 2	
+
+	# Skip Line #
+	
+	la $a0, SKIP	       #Place line skip into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print line skip
+
+	# Print Output Message #
+
+	la $a0, REPEATMESS     #Place Repeat message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Get and Save Input #
+	
+	li $v0, 5	       #Set syscall to take integer input
+	syscall                #Get first integer
+	movz $s3, $v0, $t0     #Move first integer to register $s3
+
+	# Skip Line #
+	
+	la $a0, SKIP	       #Place line skip into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print line skip
+
+	beq $t1, $s3, LOOP     #If register $s3 contains a 1 go to LOOP
+	beq $t2, $s3, EXIT     #If register $s3 contains a 2 go to EXIT
+
+ADD:	
+
+	# Validate Inputs #
+
+	li $t0, 1073741824            #Set register $t0 to 1073741824
+	li $t1, -1073741825	      #Set regster $t1 to -1073741825
+
+	slt $t6, $s1, $t0     #Set register $t6 to 0 if Decimal 1 is greater than or equal to 1073741824
+	slt $t7, $t1, $s1     #Set register $t7 to 0 if Decimal 1 is less than or equal to -1073741825
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 1 being greater than 1073741823) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 1 being less than -1073741824) go to OVERFLOWERR
+
+	slt $t6, $s2, $t0     #Set register $t6 to 0 if Decimal 2 is greater than or equal to 1073741824
+	slt $t7, $t1, $s2     #Set register $t7 to 0 if Decimal 2 is less than or equal to -1073741825
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 2 being greater than 1073741823) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 2 being less than -1073741824) go to OVERFLOWERR
+	
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message	
+	
+	# Calculate and Store Sum for Printing #
+
+	add $a0,$s1,$s2       #Add contents of registers $s1 and $s2 and place the result in register $a0
+
+	# Print Sum #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print sum
+	j REPEAT	       #Jump to REPEAT
+
+
+SUB:
+
+	# Validate Inputs #
+
+	li $t0, 1073741824            #Set register $t0 to 1073741824
+	li $t1, -1073741825	      #Set regster $t1 to -1073741825
+
+	slt $t6, $s1, $t0     #Set register $t6 to 0 if Decimal 1 is greater than or equal to 1073741824
+	slt $t7, $t1, $s1     #Set register $t7 to 0 if Decimal 1 is less than or equal to -1073741825
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 1 being greater than 1073741823) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 1 being less than -1073741824) go to OVERFLOWERR
+
+	slt $t6, $s2, $t0     #Set register $t6 to 0 if Decimal 2 is greater than or equal to 1073741824
+	slt $t7, $t1, $s2     #Set register $t7 to 0 if Decimal 2 is less than or equal to -1073741825
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 2 being greater than 1073741823) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 2 being less than -1073741824) go to OVERFLOWERR
+	
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Calculate and Store Difference for Printing #
+
+	sub $a0,$s1,$s2       #Subtract contents of registers $s1 and $s2 and place the result in register $a0
+
+	# Print Difference #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print difference
+	j REPEAT	       #Jump to REPEAT
+
+
+MUL:
+
+	# Validate Inputs #
+
+	li $t0, 32768         #Set register $t0 to 32768
+	li $t1, -32769	      #Set regster $t1 to -32769
+
+	slt $t6, $s1, $t0     #Set register $t6 to 0 if Decimal 1 is greater than or equal to 32768
+	slt $t7, $t1, $s1     #Set register $t7 to 0 if Decimal 1 is less than or equal to -32769
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 1 being greater than 32767) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 1 being less than -32768) go to OVERFLOWERR
+
+	slt $t6, $s2, $t0     #Set register $t6 to 0 if Decimal 2 is greater than or equal to 32768
+	slt $t7, $t1, $s2     #Set register $t7 to 0 if Decimal 2 is less than or equal to -32769
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 2 being greater than 32767) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 2 being less than -32768) go to OVERFLOWERR
+
+	
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Calculate and Store Product for Printing #
+
+	mult $s1,$s2           #Multiply contents of registers $s1 and $s2
+	mflo $a0	       #Store lower 32 bits of the product in register $a0
+	mfhi $t1
+	bne $t1, $zero, OVERFLOWERR
+
+	# Print Product #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print product
+	j REPEAT	       #Jump to REPEAT
+
+DIV:
+
+	# Validate Inputs #
+
+	beq $zero, $s2, OVERFLOWERR   #If register $s2 is 0 go to DIVINPUTERR
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks	
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Calculate Quotient/Remainder and Store Quotient for Printing #
+
+	div $s1,$s2            #Divide/Modulo contents of registers $s1 and $s2
+	mflo $a0	       #Store quotient in register $a0
+
+	# Print Quotient#
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print quotient
+
+	# Skip Line #
+	
+	la $a0, SKIP	       #Place line skip into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print line skip
+
+	# Print Remainder Message #
+	
+	la $a0, REMAINDER      #Place remainder message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print remainder message
+
+	# Store Remainder #
+
+	mfhi $a0               #Store remainder in register $a0
+
+	# Print Remainder #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print quotient
+	j REPEAT	       #Jump to REPEAT 
+
+                           
+  
+EXPPREP:
+
+  	li $t0, 0		#Load 0 into register $t0
+	li $t1, 1		#Load 1 into register $t1
+	add $s3, $zero, $s1     #Copy contents of register $s1 to register $s3
+
+	#Check if Base is 0 #
+	beq $t0, $s1, EXPBASEZERO
+  
+  	# Check if Exponent is 0 #
+
+	beq $t0, $s2, EXPZERO   #If Exponent is 0, go to EXPZERO
+
+	slt $t2, $s2, $t0	#Test if exponent is less than 0
+	beq $t0, $t2, EXPPOS	#If exponent is not less than 0 (and as 0 has already been accounted for, must be positive) go to EXPPOS
+	beq $t1, $t2, EXPNEG 	#If exponent is less than 0 go to EXPNEG
+  
+EXPPOS:
+
+  	li $t1, 1			#Load 1 into register $t1
+
+	# Branch Exit # 
+
+  	beq $s2, $t1, EXPOUTPOS	        #If register $s2 contents equal 1, go to EXPOUTPOS
+
+	# Multplication Loop #
+  
+  	mult $s1, $s3			#Multiply register $s1 and register $s3 (duplicate of original value for register $s1)
+  	mflo $s1			#Place lower 32 bits back into register $s1
+  	addi $s2, $s2, -1		#Decrement $s2 by 1
+  	j EXPPOS			#Loop back to EXPPOS
+
+EXPOUTPOS:
+	
+li $t1, 1
+	slt $t2, $s3, $zero
+	beq $t2, $t1, EXPOUTPOS2
+
+	blt $s1, $zero, OVERFLOWERR
+	beq $s1, $zero, OVERFLOWERR
+
+	li $t0, 0	       #Load 0 into register $t0
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks	
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+  
+  	movz $a0, $s1, $t0     #Move answer to register $a0
+  
+  	# Print Answer #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print answer
+  	j REPEAT	       #Go to REPEAT
+
+EXPOUTPOS2:
+
+li $t1, 1
+	li $t2, 2
+	div $s2, $t2
+	mfhi $t3
+
+	beq $t3, $t1, EXPOUTPOS3
+
+	blt $s1, $zero, OVERFLOWERR
+	beq $s1, $zero, OVERFLOWERR
+
+	li $t0, 0	       #Load 0 into register $t0
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks	
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+  
+  	movz $a0, $s1, $t0     #Move answer to register $a0
+  
+  	# Print Answer #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print answer
+  	j REPEAT	       #Go to REPEAT
+
+EXPOUTPOS3:
+
+	blt $zero, $s1, OVERFLOWERR
+	beq $s1, $zero, OVERFLOWERR
+
+	li $t0, 0	       #Load 0 into register $t0
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks	
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+  
+  	movz $a0, $s1, $t0     #Move answer to register $a0
+  
+  	# Print Answer #
+
+	li $v0, 1	       #Set syscall to print integer
+	syscall		       #Print answer
+  	j REPEAT	       #Go to REPEAT
+
+
+
+EXPNEG:
+
+  	li $t1, -1		#Load -1 in register $t1
+   	
+	beq $s2, $t1, EXPNEGOUT #If register $s2 contents equal -1, go to EXPNEGOUT
+  
+  	mult $s1, $s3		#Multiply register $s1 and $s3 (duplicate or original input for $s1)
+  	mflo $s1		#Move lower 32 bits of product to register $s1
+  	addi $s2, $s2, 1	#Increment register $s2 by 1
+  	j EXPNEG		#Loop back to EXPNEG
+
+EXPNEGOUT:
+
+li $t1, 1
+	slt $t2, $s3, $zero
+	beq $t2, $t1, EXPNEGOUT2
+
+	blt $s1, $zero, OVERFLOWERR
+	beq $s1, $zero, OVERFLOWERR
+
+	li.d $f2, 1.0	      #Load 1.0 in register $f2
+	li.d $f6, 0.0
+	mtc1 $s1, $f0         #Move contents of register $s1 to register $f0
+	cvt.d.w $f4, $f0      #Convert contents of register $f0 from int to float, and place in register $f4
+
+	div.d $f12, $f2, $f4  #Divide register $f2 (1.0) by register $f4, and place the results in register $f12
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Print Answer #
+	
+	li $v0, 3 	       #Set syscall to print float
+	syscall		       #Print answer
+  	j REPEAT               #Jump to REPEAT
+
+EXPNEGOUT2:
+
+li $t1, 1
+	li $t2, 2
+	div $s2, $t2
+	mfhi $t3
+
+	beq $t3, $t1, EXPNEG3
+
+	blt $s1, $zero, OVERFLOWERR
+	beq $s1, $zero, OVERFLOWERR
+
+	li.d $f2, 1.0	      #Load 1.0 in register $f2
+	li.d $f6, 0.0
+	mtc1 $s1, $f0         #Move contents of register $s1 to register $f0
+	cvt.d.w $f4, $f0      #Convert contents of register $f0 from int to float, and place in register $f4
+
+	div.d $f12, $f2, $f4  #Divide register $f2 (1.0) by register $f4, and place the results in register $f12
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Print Answer #
+	
+	li $v0, 3 	       #Set syscall to print float
+	syscall		       #Print answer
+  	j REPEAT               #Jump to REPEAT
+
+EXPNEGOUT3:
+
+	blt $zero, $s1, OVERFLOWERR
+	beq $s1, $zero, OVERFLOWERR
+
+	li.d $f2, 1.0	      #Load 1.0 in register $f2
+	li.d $f6, 0.0
+	mtc1 $s1, $f0         #Move contents of register $s1 to register $f0
+	cvt.d.w $f4, $f0      #Convert contents of register $f0 from int to float, and place in register $f4
+
+	div.d $f12, $f2, $f4  #Divide register $f2 (1.0) by register $f4, and place the results in register $f12
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+
+	# Print Answer #
+	
+	li $v0, 3 	       #Set syscall to print float
+	syscall		       #Print answer
+  	j REPEAT               #Jump to REPEAT
+
+
+
+EXPZERO:
+
+	# Validate Inputs #
+
+	li $t0, 1073741824            #Set register $t0 to 1073741824
+	li $t1, -1073741825	      #Set regster $t1 to -1073741825
+
+	slt $t6, $s1, $t0     #Set register $t6 to 0 if Decimal 1 is greater than or equal to 1073741824
+	slt $t7, $t1, $s1     #Set register $t7 to 0 if Decimal 1 is less than or equal to -1073741825
+
+	beq $zero, $t6, OVERFLOWERR    #If register $t6 is 0 (Due to Decimal Number 1 being greater than 1073741823) go to OVERFLOWERR
+	beq $zero, $t7, OVERFLOWERR    #If register $t7 is 0 (Due to Decimal Number 1 being less than -1073741824) go to OVERFLOWERR
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+  
+  	# Print Answer #
+  
+  	li $a0, 1              #Place answer (1) into register for printing
+	li $v0, 1 	       #Set syscall to print integer
+	syscall		       #Print output message
+  	j REPEAT               #Jump to REPEAT
+
+EXPBASEZERO:
+
+	# Skip 2 Lines #
+	
+	la $a0, BLANKS	       #Place blanks into register for printing
+	li $v0, 4	       #Set syscall to print string
+	syscall		       #Print blanks
+
+	# Print Output Message #
+
+	la $a0, OUTPUT         #Place output message into register for printing
+	li $v0, 4 	       #Set syscall to print string
+	syscall		       #Print output message
+  
+  	# Print Answer #
+  
+  	li $a0, 0              #Place answer (0) into register for printing
+	li $v0, 1 	       #Set syscall to print integer
+	syscall		       #Print output message
+  	j REPEAT               #Jump to REPEAT
+
+OVERFLOWERR:
+
+	li $t0, 0
+	
+	# Print Output Message #
+
+	la $a0, OVERFLOWERROR      #Place Overflow Error Message into register for printing
+	li $v0, 4 	           #Set syscall to print string
+	syscall		           #Print first query	
+
+	# Skip Line #
+	
+	la $a0, SKIP	           #Place line skip into register for printing
+	li $v0, 4 	           #Set syscall to print string
+	syscall		           #Print line skip
+
+	j REPEAT	           #Jump to REPEAT
+
+EXIT:
+
+	# End of Program File #
